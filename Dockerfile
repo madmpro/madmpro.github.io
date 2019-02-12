@@ -1,25 +1,14 @@
-FROM ruby:2.5-alpine
+FROM jekyll/builder
 
-# install some useful packages
-RUN apk --no-cache add \
-  zlib-dev \
-  build-base \
-  libxml2-dev \
-  libxslt-dev \
-  readline-dev \
-  libffi-dev \
-  yaml-dev \
-  zlib-dev \
-  libffi-dev \
-  cmake
-
-# set the default working directory
-RUN mkdir /app
-WORKDIR /app
-
-# copy local files
-COPY . /app
-
-# build and export the app
+WORKDIR /tmp
+ADD Gemfile /tmp/
+ADD Gemfile.lock /tmp/
 RUN bundle install
-RUN bundle exec jekyll build --destination /public
+
+FROM jekyll/jekyll
+
+VOLUME /src
+EXPOSE 4000
+
+WORKDIR /src
+ENTRYPOINT ["jekyll", "serve", "-H", "0.0.0.0"]
